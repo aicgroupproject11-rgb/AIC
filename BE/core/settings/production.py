@@ -1,0 +1,7 @@
+from .base import *
+
+DEBUG = env_bool("DJANGO_DEBUG", False)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = env_bool("DJANGO_SECURE_COOKIES", False)
+CSRF_COOKIE_SECURE = env_bool("DJANGO_SECURE_COOKIES", False)
+
