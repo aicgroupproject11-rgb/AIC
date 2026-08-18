@@ -48,9 +48,10 @@ videos/L31_V002.mp4
 
 python scan_aic.py
 
-### 8. Tạo lại manifest
+### 8. Tạo manifest
 
-python build_manifest.py
+python build_manifest.py 
+Kết quả tạo ra một file theo đường dẫn trong terminal
 
 ### 9. Kiểm tra manifest
 
@@ -59,3 +60,16 @@ python validate_manifest.py
 Kết quả cuối phải là:
 
 MANIFEST VALIDATION: PASS
+
+### 10. Tạo collection
+
+python build_collection.py 
+Kết quả tạo ra một file theo đường dẫn trong terminal
+
+### 11. Kiểm tra collection mapping
+
+python validate_collection.py
+
+Kết quả cuối phải là:
+
+COLLECTION VALIDATION: PASS
