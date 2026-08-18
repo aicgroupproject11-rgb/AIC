@@ -6,7 +6,15 @@
 BE/
 ├── apps/                  # Mỗi domain nghiệp vụ là một Django app độc lập
 ├── common/                # Permission, exception, utility và hạ tầng dùng chung
-├── data_processing/       # Xử lí dữ liệu, đọc readme để thao tác thêm
+├── data_processing/
+│   │   ├── scan_aic.py
+│   │   ├── build_manifest.py
+│   │   ├── validate_manifest.py
+│   │   ├── build_collection.py
+│   │   ├── validate_collection.py
+│   │   ├── manifest.csv
+│   │   ├── collection.json
+│   │   └── README_DATA_PROCESSING.md       # Xử lí dữ liệu, đọc readme để thao tác thêm
 ├── core/
 │   ├── settings/
 │   │   ├── base.py        # Cấu hình chung
