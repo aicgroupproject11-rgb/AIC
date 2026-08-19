@@ -76,10 +76,10 @@ COLLECTION VALIDATION: PASS
 
 # Lưu ý: 
 
-INPUT: các folder chứa dữ liệu theo keyframes, mapping, metadata, objects, CLIP, videos
+* **INPUT**: Các folder chứa dữ liệu theo `keyframes`, `mapping`, `metadata`, `objects`, `CLIP`, `videos`. 
+* Cần phải đặt tên theo đúng yêu cầu để chương trình có thể chạy.
+* Tất cả thư mục dữ liệu phải đặt **trực tiếp trong cùng thư mục** chứa các file script.
 
-Chương trình chạy: scan_aic.py, build_manifest.py, validate_manifest.py, build_collection.py, validate_collection.py
+* **Chương trình**: scan_aic.py, build_manifest.py, validate_manifest.py, build_collection.py, validate_collection.py.
 
-OUTPUT: 1 file `manifest.csv`, 1 file `collection.json` - Xem cụ thể hơn format của file trên đây.
-
-File `manifest.csv` và `collection.json` đang chứa phần xử lí của dữ liệu cho vòng sơ tuyển sau xử lí, xem thêm: [tại đây](https://docs.google.com/spreadsheets/d/1rfn1fieTThS_Ki3SIoJ6uXOx2AhMq7wGCak6W4jZyZM/edit?gid=0#gid=0)
+* **OUTPUT**: Tạo ra  `manifest.csv` và `collection.json` - Xem cụ thể hơn format của file trên đây. File `manifest.csv` và `collection.json` đang chứa phần xử lí của dữ liệu cho vòng sơ tuyển sau xử lí, xem thêm: [tại đây](https://docs.google.com/spreadsheets/d/1rfn1fieTThS_Ki3SIoJ6uXOx2AhMq7wGCak6W4jZyZM/edit?gid=0#gid=0).
