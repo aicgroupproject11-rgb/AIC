@@ -77,8 +77,8 @@ COLLECTION VALIDATION: PASS
 # Lưu ý: 
 
 * **INPUT**: Các folder chứa dữ liệu theo `keyframes`, `mapping`, `metadata`, `objects`, `CLIP`, `videos`. 
-* Cần phải đặt tên theo đúng yêu cầu để chương trình có thể chạy.
-* Tất cả thư mục dữ liệu phải đặt **trực tiếp trong cùng thư mục** chứa các file script.
+    * Cần phải đặt tên theo đúng yêu cầu để chương trình có thể chạy.
+    * Tất cả thư mục dữ liệu phải đặt **trực tiếp trong cùng thư mục** chứa các file script.
 
 * **Chương trình**: scan_aic.py, build_manifest.py, validate_manifest.py, build_collection.py, validate_collection.py.
 
