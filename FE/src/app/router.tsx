@@ -11,7 +11,7 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "kis", element: <KISSearchPage /> },
+      { path: "kis/search", element: <KISSearchPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },
