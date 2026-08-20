@@ -1,4 +1,10 @@
+from pathlib import Path
+
+from django.conf import settings
 from rest_framework import serializers
+
+
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 
 
 class KisSearchRequestSerializer(serializers.Serializer):
@@ -66,3 +72,39 @@ class ApiErrorBodySerializer(serializers.Serializer):
 
 class ApiErrorSerializer(serializers.Serializer):
     error = ApiErrorBodySerializer()
+
+
+class KisVideoUploadRequestSerializer(serializers.Serializer):
+    videos = serializers.ListField(
+        child=serializers.FileField(allow_empty_file=False),
+        min_length=1,
+        max_length=20,
+    )
+
+    def validate_videos(self, videos):
+        max_size = getattr(settings, "KIS_MAX_VIDEO_SIZE", 2 * 1024 * 1024 * 1024)
+
+        for video in videos:
+            extension = Path(video.name).suffix.lower()
+            if extension not in ALLOWED_VIDEO_EXTENSIONS:
+                raise serializers.ValidationError(
+                    f"{video.name}: chỉ hỗ trợ MP4, MOV, AVI, MKV hoặc WEBM."
+                )
+            if video.size > max_size:
+                raise serializers.ValidationError(
+                    f"{video.name}: file vượt quá giới hạn {max_size // (1024 * 1024)} MB."
+                )
+
+        return videos
+
+
+class KisUploadedVideoSerializer(serializers.Serializer):
+    original_name = serializers.CharField()
+    stored_name = serializers.CharField()
+    size = serializers.IntegerField(min_value=0)
+    url = serializers.CharField()
+
+
+class KisVideoUploadResponseSerializer(serializers.Serializer):
+    count = serializers.IntegerField(min_value=1)
+    videos = KisUploadedVideoSerializer(many=True)

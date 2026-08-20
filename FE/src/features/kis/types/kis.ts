@@ -24,3 +24,15 @@ export interface KISSearchResponse {
   count: number
   results: KISCandidate[]
 }
+
+export interface KISUploadedVideo {
+  original_name: string
+  stored_name: string
+  size: number
+  url: string
+}
+
+export interface KISVideoUploadResponse {
+  count: number
+  videos: KISUploadedVideo[]
+}

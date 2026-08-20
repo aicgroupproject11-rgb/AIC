@@ -1,6 +1,8 @@
+import tempfile
 from unittest.mock import patch
 
-from django.test import SimpleTestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 
 
@@ -103,3 +105,51 @@ class KisSearchApiTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json()["error"]["code"], "search_service_unavailable")
+
+
+class KisVideoUploadApiTests(SimpleTestCase):
+    def setUp(self):
+        self.media_directory = tempfile.TemporaryDirectory()
+        self.settings_override = override_settings(MEDIA_ROOT=self.media_directory.name)
+        self.settings_override.enable()
+
+    def tearDown(self):
+        self.settings_override.disable()
+        self.media_directory.cleanup()
+
+    @staticmethod
+    def video(name: str, content: bytes = b"fake-video") -> SimpleUploadedFile:
+        return SimpleUploadedFile(name, content, content_type="video/mp4")
+
+    def test_uploads_multiple_videos(self):
+        response = self.client.post(
+            reverse("kis-video-upload"),
+            data={"videos": [self.video("first.mp4"), self.video("second.mp4")]},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["count"], 2)
+        self.assertEqual(
+            [video["original_name"] for video in response.json()["videos"]],
+            ["first.mp4", "second.mp4"],
+        )
+
+    def test_rejects_request_without_videos(self):
+        response = self.client.post(reverse("kis-video-upload"), data={})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"]["code"], "validation_error")
+
+    def test_rejects_unsupported_file_extension(self):
+        invalid_file = SimpleUploadedFile(
+            "notes.txt",
+            b"not-a-video",
+            content_type="text/plain",
+        )
+        response = self.client.post(
+            reverse("kis-video-upload"),
+            data={"videos": [invalid_file]},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"]["code"], "validation_error")
