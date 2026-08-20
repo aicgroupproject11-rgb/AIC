@@ -87,7 +87,9 @@ class KisSearchView(APIView):
         },
     )
     def post(self, request: Request) -> Response:
-        request_serializer = KisSearchRequestSerializer(data=request.data)
+        results_with_urls = [_add_dataset_urls(request, result) for result in raw_results]
+
+        result_serializer = KisSearchResultSerializer(data=results_with_urls, many=True,)
 
         if not request_serializer.is_valid():
             return error_response(
