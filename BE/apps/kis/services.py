@@ -48,8 +48,21 @@ def search_kis(*, query: str, collection_ids: list[str], top_k: int,) -> list[di
             collection_ids=collection_ids,
             top_k=top_k,
         )
-    except (FileNotFoundError, TimeoutError, ValueError) as exc:
-        raise SearchServiceFailed(str(exc)) from exc
+    except Exception as exc:
+        if isinstance(
+            exc,
+            (FileNotFoundError, ImportError, ModuleNotFoundError),
+        ) or exc.__class__.__name__ == "SearchServiceUnavailable":
+            raise SearchServiceUnavailable(
+                str(exc) or "Search index hoặc dữ liệu KIS chưa sẵn sàng."
+            ) from exc
+    
+        if isinstance(exc, (TimeoutError, ValueError)):
+            raise SearchServiceFailed(str(exc)) from exc
+    
+        raise SearchServiceFailed(
+            "Search module gặp lỗi ngoài dự kiến."
+        ) from exc
 
     if not isinstance(results, list):
         raise SearchServiceFailed("Search module phải trả về list[dict].")
