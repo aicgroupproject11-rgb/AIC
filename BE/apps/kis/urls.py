@@ -1,6 +1,8 @@
 from django.urls import path
 
-from .views import KISSearchView
+from .views import KisSearchView
 
 
-urlpatterns = [path("search/",KISSearchView.as_view(),name="kis-search",),]
+urlpatterns = [
+    path("search/", KisSearchView.as_view(), name="kis-search"),
+]

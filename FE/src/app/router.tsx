@@ -1,16 +1,18 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter } from "react-router-dom"
 
-import { AppLayout } from '../layouts/AppLayout.tsx'
-import { HomePage } from '../pages/HomePage.tsx'
-import { NotFoundPage } from '../pages/NotFoundPage.tsx'
+import { AppLayout } from "../layouts/AppLayout.tsx"
+import { HomePage } from "../pages/HomePage.tsx"
+import { KISSearchPage } from "../pages/KISSearchPage.tsx"
+import { NotFoundPage } from "../pages/NotFoundPage.tsx"
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <AppLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: '*', element: <NotFoundPage /> },
+      { path: "kis", element: <KISSearchPage /> },
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ])

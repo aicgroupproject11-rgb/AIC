@@ -31,7 +31,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
 ]
-LOCAL_APPS: list[str] = []
+LOCAL_APPS: list[str] = ["apps.kis.apps.KisConfig"]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
