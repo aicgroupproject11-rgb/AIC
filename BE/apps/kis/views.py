@@ -29,7 +29,34 @@ from .services import SearchServiceFailed, SearchServiceUnavailable, search_kis
 
 logger = logging.getLogger(__name__)
 
+def _dataset_url(request: Request, relative_path: str) -> str:
+    normalized_path = relative_path.replace("\\", "/").lstrip("/")
 
+    return request.build_absolute_uri(
+        reverse(
+            "kis-dataset-asset",
+            kwargs={"asset_path": normalized_path},
+        )
+    )
+
+
+def _add_dataset_urls(request: Request, raw_result):
+    if not isinstance(raw_result, dict):
+        return raw_result
+
+    result = dict(raw_result)
+
+    image_path = result.get("image_path")
+    video_path = result.get("video_path")
+
+    if isinstance(image_path, str):
+        result["image_url"] = _dataset_url(request, image_path)
+
+    if isinstance(video_path, str):
+        result["video_url"] = _dataset_url(request, video_path)
+
+    return result
+    
 def error_response(
     *,
     code: str,
