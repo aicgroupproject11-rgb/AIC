@@ -54,6 +54,10 @@ class KisSearchResultSerializer(serializers.Serializer):
     timestamp_ms = serializers.IntegerField(min_value=0)
     image_path = serializers.CharField(max_length=1000)
     video_path = serializers.CharField(max_length=1000)
+    
+    image_url = serializers.CharField(max_length=2000)
+    video_url = serializers.CharField(max_length=2000)
+    
     score = serializers.FloatField()
 
 
