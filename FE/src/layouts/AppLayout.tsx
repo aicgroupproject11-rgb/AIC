@@ -14,7 +14,7 @@ export function AppLayout() {
         {/* Sidebar */}
         <aside className="hidden w-64 flex-col bg-[#124874] text-white md:flex">
           <div className="border-b border-white/15 px-6 py-6">
-            <div className="text-2xl font-bold">EduGraph</div>
+            <div className="text-2xl font-bold">AIC</div>
             <div className="mt-1 text-sm text-blue-100">
               Classroom Intelligence
             </div>
@@ -46,7 +46,7 @@ export function AppLayout() {
 
           <div className="border-t border-white/15 px-6 py-5">
             <div className="text-xs text-blue-200">AI Classroom Analysis</div>
-            <div className="mt-1 text-sm font-medium">EduGraph v1.0</div>
+            <div className="mt-1 text-sm font-medium">AIC v1.0</div>
           </div>
         </aside>
 
@@ -65,7 +65,7 @@ export function AppLayout() {
                 <p className="text-sm font-medium text-slate-800">
                   Teacher
                 </p>
-                <p className="text-xs text-slate-500">EduGraph User</p>
+                <p className="text-xs text-slate-500">AIC User</p>
               </div>
 
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#124874] text-sm font-semibold text-white">
