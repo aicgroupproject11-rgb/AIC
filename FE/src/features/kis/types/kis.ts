@@ -13,6 +13,8 @@ export interface KISCandidate {
   timestamp_ms: number
   image_path: string
   video_path: string
+  image_url: string
+  video_url: string
   score: number
 }
 
