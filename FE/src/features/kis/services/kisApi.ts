@@ -8,7 +8,7 @@ import type {
 export async function searchKIS(
     request: KISSearchRequest,
 ): Promise<KISSearchResponse> {
-    return apiRequest<KISSearchResponse>("/api/kis/search/", {
+    return apiRequest<KISSearchResponse>("/kis/search/", {
         method: "POST",
         body: JSON.stringify(request),
     });
