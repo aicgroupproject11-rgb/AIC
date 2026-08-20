@@ -45,10 +45,10 @@ export function KISSearchPage() {
                     </p>
 
                     {data.results.map((item) => (
-                        <div key={`${item.video_id}-${item.frame_id}`}>
+                        <div key={item.keyframe_id}>
                             <strong>#{item.rank}</strong>
                             <span> Video: {item.video_id}</span>
-                            <span> Frame: {item.frame_id}</span>
+                            <span> Frame: {item.frame_number}</span>
                             <span> Score: {item.score}</span>
                         </div>
                     ))}
