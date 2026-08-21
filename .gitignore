@@ -14,6 +14,7 @@ node_modules/
 dist/
 staticfiles/
 media/
+search_engine/data/search_index/
 
 
 # Runtime-built KIS search index
