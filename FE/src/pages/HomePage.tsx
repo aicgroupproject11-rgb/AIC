@@ -1,4 +1,6 @@
-import { ChangeEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import type { ChangeEvent } from 'react'
 
 type Behavior = {
   student: string
@@ -447,6 +449,5 @@ function GraphArrow({ label }: { label: string }) {
     </div>
   )
 }
-
 
 
