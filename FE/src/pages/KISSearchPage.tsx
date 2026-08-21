@@ -92,8 +92,25 @@ export function KISSearchPage() {
                   <p className="text-slate-600">
                     Frame {item.frame_number} · {Math.round(item.timestamp_ms / 1000)}s
                   </p>
+                  {item.domains && item.domains.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {item.domains.map((domain) => (
+                        <span
+                          key={domain}
+                          className="rounded-full bg-sky-50 px-2 py-1 text-xs font-medium text-[#124874]"
+                        >
+                          {domain}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {item.matched_objects && item.matched_objects.length > 0 && (
+                    <p className="text-xs text-slate-500">
+                      Object match: {item.matched_objects.join(', ')}
+                    </p>
+                  )}
                   <a
-                    href={item.video_url}
+                    href={`${item.video_url}#t=${item.timestamp_ms / 1000}`}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-block font-semibold text-[#124874] hover:underline"

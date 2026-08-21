@@ -17,6 +17,14 @@ export interface KISCandidate {
   image_url: string
   video_url: string
   score: number
+  domains?: string[]
+  routed_domains?: string[]
+  matched_objects?: string[]
+  score_components?: {
+    clip: number
+    object_bow: number
+    domain: number
+  }
 }
 
 export interface KISSearchResponse {
