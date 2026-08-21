@@ -48,8 +48,10 @@ services:
       DB_PORT: 5432
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-      KIS_DATA_ROOT: ${KIS_DATA_ROOT:-/app/data_processing}
+      KIS_DATA_ROOT: ${KIS_DATA_ROOT:-/data/aic}
+      KIS_INDEX_ROOT: ${KIS_INDEX_ROOT:-/app/search_engine/data/search_index}
       KIS_SEARCH_FUNCTION: ${KIS_SEARCH_FUNCTION:-search_engine.kis.search}
+      KIS_INSPECT_FUNCTION: ${KIS_INSPECT_FUNCTION:-search_engine.kis.inspect}
       KIS_MAX_VIDEO_SIZE: ${KIS_MAX_VIDEO_SIZE:-2147483648}
     command: >-
       sh -c "python manage.py migrate --noinput &&
@@ -60,6 +62,8 @@ services:
     volumes:
       - static_data:/app/staticfiles
       - media_data:/app/media
+      - ${KIS_DATA_ROOT_HOST:-./BE/data_processing}:${KIS_DATA_ROOT:-/data/aic}
+      - ${KIS_INDEX_ROOT_HOST:-./BE/search_engine/data/search_index}:${KIS_INDEX_ROOT:-/app/search_engine/data/search_index}
     depends_on:
       db:
         condition: service_healthy
@@ -78,6 +82,9 @@ services:
       context: ./BE
     environment: *backend_environment
     command: celery -A core worker --loglevel=info
+    volumes:
+      - ${KIS_DATA_ROOT_HOST:-./BE/data_processing}:${KIS_DATA_ROOT:-/data/aic}:ro
+      - ${KIS_INDEX_ROOT_HOST:-./BE/search_engine/data/search_index}:${KIS_INDEX_ROOT:-/app/search_engine/data/search_index}
     depends_on:
       db:
         condition: service_healthy
