@@ -1,9 +1,5 @@
-import numpy as np
+"""Compatibility module. Reranking is implemented by HybridSearchIndex.rerank."""
 
-def rerank(query_full: np.ndarray, candidate_positions: list[int], search_index) -> list[tuple[int, float]]:
-    if not candidate_positions:
-        return []
-    cand_vectors = search_index.full_vectors[candidate_positions]
-    scores = cand_vectors @ query_full
-    order = np.argsort(-scores)
-    return [(candidate_positions[i], float(scores[i])) for i in order]
+from BE.search_engine.indexer import RankedCandidate
+
+__all__ = ["RankedCandidate"]
