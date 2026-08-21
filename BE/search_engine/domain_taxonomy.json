@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "aliases": {
+    "nguoi": "person",
+    "con nguoi": "person",
+    "dan ong": "man",
+    "nam gioi": "man",
+    "phu nu": "woman",
+    "nu gioi": "woman",
+    "tre em": "child",
+    "em be": "baby",
+    "dam dong": "crowd",
+    "khuon mat": "face",
+    "quan ao": "clothing",
+    "kinh mat": "glasses",
+    "xe hoi": "car",
+    "o to": "car",
+    "xe may": "motorcycle",
+    "xe dap": "bicycle",
+    "xe buyt": "bus",
+    "tau hoa": "train",
+    "may bay": "airplane",
+    "tau thuyen": "boat",
+    "duong pho": "street",
+    "giao thong": "traffic",
+    "den giao thong": "traffic light",
+    "trong nha": "indoor",
+    "ngoai troi": "outdoor",
+    "phong khach": "living room",
+    "phong ngu": "bedroom",
+    "nha bep": "kitchen",
+    "ban ghe": "furniture",
+    "ti vi": "television",
+    "do an": "food",
+    "mon an": "food",
+    "trai cay": "fruit",
+    "nau an": "cooking",
+    "the thao": "sport",
+    "bong da": "football",
+    "bong ro": "basketball",
+    "boi loi": "swimming",
+    "truong hoc": "school",
+    "lop hoc": "classroom",
+    "van phong": "office",
+    "may tinh": "computer",
+    "dien thoai": "phone",
+    "sach vo": "book",
+    "san khau": "stage",
+    "bieu dien": "performance",
+    "ca si": "singer",
+    "nhac cu": "instrument",
+    "tin tuc": "news",
+    "van ban": "text",
+    "tai lieu": "document",
+    "bieu do": "chart",
+    "dong vat": "animal",
+    "con cho": "dog",
+    "meo": "cat",
+    "chim": "bird",
+    "cay coi": "tree",
+    "bai bien": "beach",
+    "song nui": "landscape",
+    "dong song": "river",
+    "bau troi": "sky"
+  },
+  "domains": [
+    {
+      "id": "people",
+      "prompt": "people, faces, clothing and human social activity",
+      "terms": ["person", "people", "man", "woman", "boy", "girl", "child", "baby", "face", "human", "clothing", "dress", "shirt", "crowd", "family", "glasses"]
+    },
+    {
+      "id": "transport",
+      "prompt": "vehicles, transportation, roads and traffic",
+      "terms": ["vehicle", "car", "truck", "bus", "bicycle", "bike", "motorcycle", "train", "airplane", "boat", "ship", "road", "street", "traffic", "traffic light", "station"]
+    },
+    {
+      "id": "indoor_home",
+      "prompt": "indoor home rooms, household furniture and appliances",
+      "terms": ["indoor", "home", "house", "room", "living room", "bedroom", "kitchen", "bathroom", "chair", "table", "bed", "sofa", "furniture", "television", "lamp", "window", "door"]
+    },
+    {
+      "id": "food",
+      "prompt": "food, meals, drinks, restaurants and cooking",
+      "terms": ["food", "meal", "dish", "fruit", "vegetable", "meat", "bread", "rice", "drink", "bottle", "cup", "restaurant", "cooking", "kitchen", "cake"]
+    },
+    {
+      "id": "sports",
+      "prompt": "sports, exercise, games and athletes",
+      "terms": ["sport", "athlete", "football", "soccer", "basketball", "volleyball", "tennis", "badminton", "swimming", "running", "ball", "sports uniform", "stadium", "exercise"]
+    },
+    {
+      "id": "work_school",
+      "prompt": "workplace, office, school, study and technology",
+      "terms": ["work", "office", "school", "classroom", "student", "teacher", "book", "document", "computer", "laptop", "keyboard", "phone", "meeting", "presentation", "desk"]
+    },
+    {
+      "id": "event_stage",
+      "prompt": "public event, stage performance, music and entertainment",
+      "terms": ["event", "stage", "performance", "concert", "music", "singer", "microphone", "instrument", "audience", "crowd", "dance", "festival", "ceremony"]
+    },
+    {
+      "id": "news_document",
+      "prompt": "news broadcast, text, documents, charts and information screens",
+      "terms": ["news", "report", "broadcast", "text", "subtitle", "document", "chart", "graph", "map", "screen", "logo", "sign", "headline", "anchor"]
+    },
+    {
+      "id": "animals",
+      "prompt": "animals, pets, birds and wildlife",
+      "terms": ["animal", "pet", "dog", "cat", "bird", "horse", "cow", "fish", "wildlife", "zoo"]
+    },
+    {
+      "id": "outdoor_nature",
+      "prompt": "outdoor nature, landscapes, weather and natural scenery",
+      "terms": ["outdoor", "nature", "tree", "forest", "mountain", "landscape", "river", "lake", "sea", "beach", "sky", "cloud", "rain", "park", "field", "garden"]
+    }
+  ]
+}
