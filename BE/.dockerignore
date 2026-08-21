@@ -7,4 +7,11 @@ __pycache__
 .git
 media
 staticfiles
-
+data_processing/archives
+data_processing/keyframes
+data_processing/map-keyframes
+data_processing/media-info
+data_processing/objects
+data_processing/clip-features-32
+data_processing/videos
+search_engine/data/search_index
