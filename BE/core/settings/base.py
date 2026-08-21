@@ -92,7 +92,17 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-KIS_DATA_ROOT = Path(os.getenv("KIS_DATA_ROOT",BASE_DIR / "data_processing",))
+KIS_DATA_ROOT = Path(os.getenv("KIS_DATA_ROOT", "data_processing"))
+
+if not KIS_DATA_ROOT.is_absolute():
+    KIS_DATA_ROOT = (BASE_DIR / KIS_DATA_ROOT).resolve()
+else:
+    KIS_DATA_ROOT = KIS_DATA_ROOT.resolve()
+
+KIS_SEARCH_FUNCTION = os.getenv("KIS_SEARCH_FUNCTION", "search_engine.kis.search")
+KIS_MAX_VIDEO_SIZE = int(
+    os.getenv("KIS_MAX_VIDEO_SIZE", str(2 * 1024 * 1024 * 1024))
+)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = env_list(
@@ -122,4 +132,5 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+
 

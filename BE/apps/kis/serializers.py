@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from django.conf import settings
@@ -8,61 +9,57 @@ ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 
 
 class KisSearchRequestSerializer(serializers.Serializer):
-
     query = serializers.CharField(
-        required=True, 
-        allow_blank=False, 
-        trim_whitespace=True, 
         max_length=500,
-)
+        allow_blank=False,
+        trim_whitespace=True,
+    )
     collection_ids = serializers.ListField(
-        child=serializers.CharField(max_length=50), 
-        required=False, allow_empty=True, 
-        default=list, 
+        child=serializers.CharField(max_length=50),
+        required=False,
+        default=list,
         max_length=50,
-)
+    )
     top_k = serializers.IntegerField(
-        required=False, 
-        default=20, 
-        min_value=1, 
+        required=False,
+        default=100,
+        min_value=1,
         max_value=100,
-)
+    )
 
-    def validate_collection_ids(self, values: list[str]) -> list[str]:
-
-        cleaned_values: list[str] = []
-        seen: set[str] = set()
+    def validate_collection_ids(self, values):
+        cleaned = []
 
         for value in values:
-            cleaned_value = value.strip()
-            if not cleaned_value:
-                raise serializers.ValidationError("Collection ID không được để trống.")
-            if cleaned_value not in seen:
-                seen.add(cleaned_value)
-                cleaned_values.append(cleaned_value)
+            collection_id = value.strip().upper()
 
-        return cleaned_values
+            if not re.fullmatch(r"L\d+", collection_id):
+                raise serializers.ValidationError(f"Collection ID không hợp lệ: {value}. Ví dụ đúng: L21.")
+
+            if collection_id not in cleaned:
+                cleaned.append(collection_id)
+
+        return cleaned
 
 
 class KisSearchResultSerializer(serializers.Serializer):
-
     rank = serializers.IntegerField(min_value=1)
     keyframe_id = serializers.CharField(max_length=150)
     collection_id = serializers.CharField(max_length=50)
     video_id = serializers.CharField(max_length=100)
     frame_number = serializers.IntegerField(min_value=0)
+    frame_id = serializers.IntegerField(min_value=0)
     timestamp_ms = serializers.IntegerField(min_value=0)
     image_path = serializers.CharField(max_length=1000)
     video_path = serializers.CharField(max_length=1000)
-    
     image_url = serializers.CharField(max_length=2000)
     video_url = serializers.CharField(max_length=2000)
-    
     score = serializers.FloatField()
 
 
 class KisSearchResponseSerializer(serializers.Serializer):
     query = serializers.CharField()
+    parsed_keys = serializers.ListField(child=serializers.CharField())
     filters = serializers.DictField()
     count = serializers.IntegerField(min_value=0)
     results = KisSearchResultSerializer(many=True)
@@ -86,18 +83,21 @@ class KisVideoUploadRequestSerializer(serializers.Serializer):
     )
 
     def validate_videos(self, videos):
-        max_size = getattr(settings, "KIS_MAX_VIDEO_SIZE", 2 * 1024 * 1024 * 1024)
+        max_size = getattr(
+            settings,
+            "KIS_MAX_VIDEO_SIZE",
+            2 * 1024 * 1024 * 1024,
+        )
 
         for video in videos:
             extension = Path(video.name).suffix.lower()
+
             if extension not in ALLOWED_VIDEO_EXTENSIONS:
-                raise serializers.ValidationError(
-                    f"{video.name}: chỉ hỗ trợ MP4, MOV, AVI, MKV hoặc WEBM."
-                )
+                raise serializers.ValidationError(f"{video.name}: chỉ hỗ trợ MP4, MOV, AVI, MKV hoặc WEBM.")
+
             if video.size > max_size:
-                raise serializers.ValidationError(
-                    f"{video.name}: file vượt quá giới hạn {max_size // (1024 * 1024)} MB."
-                )
+                max_mb = max_size // (1024 * 1024)
+                raise serializers.ValidationError(f"{video.name}: file vượt quá {max_mb} MB.")
 
         return videos
 

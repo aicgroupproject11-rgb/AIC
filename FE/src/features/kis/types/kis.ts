@@ -10,6 +10,7 @@ export interface KISCandidate {
   collection_id: string
   video_id: string
   frame_number: number
+  frame_id: number
   timestamp_ms: number
   image_path: string
   video_path: string
@@ -20,6 +21,7 @@ export interface KISCandidate {
 
 export interface KISSearchResponse {
   query: string
+  parsed_keys: string[]
   filters: {
     collection_ids: string[]
   }

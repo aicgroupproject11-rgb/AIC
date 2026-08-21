@@ -48,6 +48,9 @@ services:
       DB_PORT: 5432
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
+      KIS_DATA_ROOT: ${KIS_DATA_ROOT:-/app/data_processing}
+      KIS_SEARCH_FUNCTION: ${KIS_SEARCH_FUNCTION:-search_engine.kis.search}
+      KIS_MAX_VIDEO_SIZE: ${KIS_MAX_VIDEO_SIZE:-2147483648}
     command: >-
       sh -c "python manage.py migrate --noinput &&
       python manage.py collectstatic --noinput &&

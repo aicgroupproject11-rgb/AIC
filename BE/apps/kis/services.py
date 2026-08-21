@@ -1,70 +1,108 @@
-from collections.abc import Callable
+import logging
+import re
 from importlib import import_module
-from typing import Any
 
 from django.conf import settings
 
+logger = logging.getLogger(__name__)
+
+
+class InvalidSearchRequest(ValueError):
+    pass
+
 
 class SearchServiceUnavailable(RuntimeError):
-    """The algorithm team's search module is absent or cannot be imported."""
+    pass
 
 
 class SearchServiceFailed(RuntimeError):
-    """The search module exists but failed while processing a request."""
+    pass
 
 
-def _load_search_function() -> Callable[..., list[dict[str, Any]]]:
-    """Load the algorithm function only when an API request needs it.
+COLLECTION_TAG_PATTERN = re.compile(r"#(L\d+)\b", re.IGNORECASE)
 
-    The default path is intentionally outside the API app. The algorithm/data
-    team can provide this module later without changing the API contract.
-    """
 
-    dotted_path = getattr(settings, "KIS_SEARCH_FUNCTION", "search_engine.kis.search",)
-    module_path, separator, function_name = dotted_path.rpartition(".")
+def parse_query(query: str) -> tuple[str, list[str], list[str]]:
+    """Tách câu query thành text tìm kiếm, keywords và collection tags."""
+    collection_ids = [
+        match.group(1).upper()
+        for match in COLLECTION_TAG_PATTERN.finditer(query)
+    ]
 
-    if not separator:
-        raise SearchServiceUnavailable("KIS_SEARCH_FUNCTION phải có dạng 'package.module.function'.")
+    clean_query = COLLECTION_TAG_PATTERN.sub(" ", query)
+    clean_query = re.sub(r"#(?=\w)", "", clean_query)
+    clean_query = " ".join(clean_query.split())
+    keys = clean_query.split()
+
+    return clean_query, keys, collection_ids
+
+
+def merge_collection_ids(
+    collection_ids: list[str],
+    collection_tags: list[str],
+) -> list[str]:
+    result = []
+
+    for collection_id in collection_ids + collection_tags:
+        collection_id = collection_id.strip().upper()
+        if collection_id and collection_id not in result:
+            result.append(collection_id)
+
+    return result
+
+
+def get_search_function():
+    path = getattr(settings, "KIS_SEARCH_FUNCTION", "search_engine.kis.search")
 
     try:
-        module = import_module(module_path)
-        search_function = getattr(module, function_name)
-    except (ImportError, AttributeError) as exc:
-        raise SearchServiceUnavailable("Module tìm kiếm KIS chưa được kết nối với API.") from exc
-
-    if not callable(search_function):
-        raise SearchServiceUnavailable("KIS_SEARCH_FUNCTION không phải là một hàm.")
-
-    return search_function
+        module_name, function_name = path.rsplit(".", 1)
+        module = import_module(module_name)
+        return getattr(module, function_name)
+    except (ValueError, ImportError, AttributeError, OSError) as exc:
+        raise SearchServiceUnavailable(
+            f"Không load được search engine: {path}"
+        ) from exc
 
 
-def search_kis(*, query: str, collection_ids: list[str], top_k: int,) -> list[dict[str, Any]]:
+def search_kis(
+    query: str,
+    collection_ids: list[str],
+    top_k: int,
+):
+    """Nối API với hàm search của team Search Engine."""
+    clean_query, keys, collection_tags = parse_query(query)
 
-    search_function = _load_search_function()
+    if not clean_query:
+        raise InvalidSearchRequest(
+            "Query cần ít nhất một từ khóa tìm kiếm."
+        )
+
+    final_collection_ids = merge_collection_ids(
+        collection_ids,
+        collection_tags,
+    )
+
+    search = get_search_function()
 
     try:
-        results = search_function(
-            query=query,
-            collection_ids=collection_ids,
+        results = search(
+            query=clean_query,
+            collection_ids=final_collection_ids,
             top_k=top_k,
         )
     except Exception as exc:
-        if isinstance(
-            exc,
-            (FileNotFoundError, ImportError, ModuleNotFoundError),
-        ) or exc.__class__.__name__ == "SearchServiceUnavailable":
-            raise SearchServiceUnavailable(
-                str(exc) or "Search index hoặc dữ liệu KIS chưa sẵn sàng."
-            ) from exc
-    
-        if isinstance(exc, (TimeoutError, ValueError)):
-            raise SearchServiceFailed(str(exc)) from exc
-    
-        raise SearchServiceFailed(
-            "Search module gặp lỗi ngoài dự kiến."
-        ) from exc
+        if isinstance(exc, (FileNotFoundError, ImportError, ModuleNotFoundError, OSError), ) or exc.__class__.__name__ == "SearchServiceUnavailable":
+            raise SearchServiceUnavailable(str(exc) or "Search index hoặc dữ liệu KIS chưa sẵn sàng.") from exc
+
+        logger.exception("KIS search failed")
+        raise SearchServiceFailed(str(exc) or "Search engine gặp lỗi.") from exc
 
     if not isinstance(results, list):
-        raise SearchServiceFailed("Search module phải trả về list[dict].")
+        raise SearchServiceFailed("Search engine phải trả về một list kết quả.")
 
-    return results
+    parsed_info = {
+        "keys": keys,
+        "effective_collection_ids": final_collection_ids,
+    }
+
+    return parsed_info, results
