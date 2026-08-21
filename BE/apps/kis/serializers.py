@@ -55,6 +55,16 @@ class KisSearchResultSerializer(serializers.Serializer):
     image_url = serializers.CharField(max_length=2000)
     video_url = serializers.CharField(max_length=2000)
     score = serializers.FloatField()
+    domains = serializers.ListField(
+        child=serializers.CharField(max_length=100), required=False
+    )
+    routed_domains = serializers.ListField(
+        child=serializers.CharField(max_length=100), required=False
+    )
+    matched_objects = serializers.ListField(
+        child=serializers.CharField(max_length=200), required=False
+    )
+    score_components = serializers.DictField(required=False)
 
 
 class KisSearchResponseSerializer(serializers.Serializer):
@@ -63,6 +73,17 @@ class KisSearchResponseSerializer(serializers.Serializer):
     filters = serializers.DictField()
     count = serializers.IntegerField(min_value=0)
     results = KisSearchResultSerializer(many=True)
+
+
+class KisSearchInspectResponseSerializer(serializers.Serializer):
+    query = serializers.CharField()
+    parsed_keys = serializers.ListField(child=serializers.CharField())
+    filters = serializers.DictField()
+    clip_query = serializers.CharField()
+    analysis = serializers.DictField()
+    routing = serializers.DictField()
+    candidate_trace = serializers.DictField()
+    index = serializers.DictField()
 
 
 class ApiErrorBodySerializer(serializers.Serializer):

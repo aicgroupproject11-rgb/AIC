@@ -51,8 +51,8 @@ def merge_collection_ids(
     return result
 
 
-def get_search_function():
-    path = getattr(settings, "KIS_SEARCH_FUNCTION", "search_engine.kis.search")
+def get_engine_function(setting_name: str, default_path: str):
+    path = getattr(settings, setting_name, default_path)
 
     try:
         module_name, function_name = path.rsplit(".", 1)
@@ -64,12 +64,24 @@ def get_search_function():
         ) from exc
 
 
-def search_kis(
+def get_search_function():
+    return get_engine_function(
+        "KIS_SEARCH_FUNCTION",
+        "search_engine.kis.search",
+    )
+
+
+def get_inspect_function():
+    return get_engine_function(
+        "KIS_INSPECT_FUNCTION",
+        "search_engine.kis.inspect",
+    )
+
+
+def prepare_query(
     query: str,
     collection_ids: list[str],
-    top_k: int,
-):
-    """Nối API với hàm search của team Search Engine."""
+) -> tuple[str, dict]:
     clean_query, keys, collection_tags = parse_query(query)
 
     if not clean_query:
@@ -82,27 +94,73 @@ def search_kis(
         collection_tags,
     )
 
-    search = get_search_function()
-
-    try:
-        results = search(
-            query=clean_query,
-            collection_ids=final_collection_ids,
-            top_k=top_k,
-        )
-    except Exception as exc:
-        if isinstance(exc, (FileNotFoundError, ImportError, ModuleNotFoundError, OSError), ) or exc.__class__.__name__ == "SearchServiceUnavailable":
-            raise SearchServiceUnavailable(str(exc) or "Search index hoặc dữ liệu KIS chưa sẵn sàng.") from exc
-
-        logger.exception("KIS search failed")
-        raise SearchServiceFailed(str(exc) or "Search engine gặp lỗi.") from exc
-
-    if not isinstance(results, list):
-        raise SearchServiceFailed("Search engine phải trả về một list kết quả.")
-
-    parsed_info = {
+    return clean_query, {
         "keys": keys,
         "effective_collection_ids": final_collection_ids,
     }
 
+
+def call_engine(function, *, query, collection_ids, top_k):
+    try:
+        return function(
+            query=query,
+            collection_ids=collection_ids,
+            top_k=top_k,
+        )
+    except Exception as exc:
+        unavailable_errors = (
+            FileNotFoundError,
+            ImportError,
+            ModuleNotFoundError,
+            OSError,
+        )
+        if (
+            isinstance(exc, unavailable_errors)
+            or exc.__class__.__name__ == "SearchServiceUnavailable"
+        ):
+            raise SearchServiceUnavailable(
+                str(exc) or "Search index hoặc dữ liệu KIS chưa sẵn sàng."
+            ) from exc
+
+        logger.exception("KIS search engine failed")
+        raise SearchServiceFailed(str(exc) or "Search engine gặp lỗi.") from exc
+
+
+def search_kis(
+    query: str,
+    collection_ids: list[str],
+    top_k: int,
+):
+    """Nối API với hàm search của team Search Engine."""
+    clean_query, parsed_info = prepare_query(query, collection_ids)
+    results = call_engine(
+        get_search_function(),
+        query=clean_query,
+        collection_ids=parsed_info["effective_collection_ids"],
+        top_k=top_k,
+    )
+
+    if not isinstance(results, list):
+        raise SearchServiceFailed("Search engine phải trả về một list kết quả.")
+
     return parsed_info, results
+
+
+def inspect_kis(
+    query: str,
+    collection_ids: list[str],
+    top_k: int,
+):
+    """Trả về routing trace để giải thích một truy vấn, không trả keyframe."""
+    clean_query, parsed_info = prepare_query(query, collection_ids)
+    trace = call_engine(
+        get_inspect_function(),
+        query=clean_query,
+        collection_ids=parsed_info["effective_collection_ids"],
+        top_k=top_k,
+    )
+
+    if not isinstance(trace, dict):
+        raise SearchServiceFailed("Search inspect phải trả về một object.")
+
+    return parsed_info, trace

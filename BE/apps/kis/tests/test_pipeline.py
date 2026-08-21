@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.test import SimpleTestCase, override_settings
 
-from apps.kis.pipeline import process_fe_command
+from apps.kis.pipeline import inspect_fe_command, process_fe_command
 from apps.kis.services import InvalidSearchRequest
 
 
@@ -33,6 +33,27 @@ class KisPipelineTests(SimpleTestCase):
         with self.assertRaises(InvalidSearchRequest):
             process_fe_command("#L21", [], 20)
 
+    @override_settings(
+        KIS_INSPECT_FUNCTION="apps.kis.tests.test_pipeline.fake_inspect"
+    )
+    @patch("apps.kis.tests.test_pipeline.fake_inspect")
+    def test_inspect_uses_the_same_query_parser(self, mock_inspect):
+        mock_inspect.return_value = {"routing": {"selected_domains": ["transport"]}}
+
+        parsed, trace = inspect_fe_command("xe đạp #L22", [], 10)
+
+        self.assertEqual(parsed["effective_collection_ids"], ["L22"])
+        self.assertEqual(trace["routing"]["selected_domains"], ["transport"])
+        mock_inspect.assert_called_once_with(
+            query="xe đạp",
+            collection_ids=["L22"],
+            top_k=10,
+        )
+
 
 def fake_search(*, query, collection_ids, top_k):
     return []
+
+
+def fake_inspect(*, query, collection_ids, top_k):
+    return {}

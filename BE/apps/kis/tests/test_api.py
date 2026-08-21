@@ -67,3 +67,51 @@ class KisSearchApiTests(SimpleTestCase):
         )
 
         self.assertEqual(response.status_code, 503)
+
+    @patch("apps.kis.views.inspect_fe_command")
+    def test_inspect_returns_domain_and_tree_trace(self, mock_inspect):
+        mock_inspect.return_value = (
+            {"keys": ["xe", "đạp"], "effective_collection_ids": ["L21"]},
+            {
+                "query": "xe đạp",
+                "clip_query": "xe đạp. Visual concepts: bicycle.",
+                "analysis": {
+                    "normalized_query": "xe dap",
+                    "keyword_candidates": ["xe dap"],
+                    "expanded_terms": ["bicycle"],
+                    "matched_object_vocabulary": [
+                        {"term": "bicycle", "match_score": 1.0}
+                    ],
+                },
+                "routing": {
+                    "selected_domains": ["transport"],
+                    "domains": [],
+                },
+                "candidate_trace": {
+                    "unique_candidate_count": 2,
+                    "trees": [
+                        {
+                            "tree_key": "collection_domain:L21:transport",
+                            "entry_count": 2,
+                        }
+                    ],
+                },
+                "index": {"format_version": 2, "record_count": 2},
+            },
+        )
+
+        response = self.client.post(
+            reverse("kis-search-inspect"),
+            data={"query": "xe đạp #L21", "top_k": 10},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["routing"]["selected_domains"],
+            ["transport"],
+        )
+        self.assertEqual(
+            response.json()["candidate_trace"]["trees"][0]["entry_count"],
+            2,
+        )

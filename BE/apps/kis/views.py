@@ -7,6 +7,7 @@ from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 from django.urls import reverse
 from django.utils.text import get_valid_filename
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -14,10 +15,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .pipeline import process_fe_command
+from .pipeline import inspect_fe_command, process_fe_command
 from .serializers import (
     ApiErrorSerializer,
     KisSearchRequestSerializer,
+    KisSearchInspectResponseSerializer,
     KisSearchResponseSerializer,
     KisSearchResultSerializer,
     KisVideoUploadRequestSerializer,
@@ -151,9 +153,92 @@ class KisSearchView(APIView):
         )
 
 
+class KisSearchInspectView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        tags=["KIS"],
+        summary="Inspect KIS query routing and R-tree candidates",
+        request=KisSearchRequestSerializer,
+        responses={
+            200: KisSearchInspectResponseSerializer,
+            400: OpenApiResponse(response=ApiErrorSerializer),
+            500: OpenApiResponse(response=ApiErrorSerializer),
+            503: OpenApiResponse(response=ApiErrorSerializer),
+        },
+    )
+    def post(self, request):
+        serializer = KisSearchRequestSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return error_response(
+                "validation_error",
+                "Dữ liệu gửi lên không hợp lệ.",
+                status.HTTP_400_BAD_REQUEST,
+                serializer.errors,
+            )
+
+        data = serializer.validated_data
+
+        try:
+            parsed_info, trace = inspect_fe_command(
+                query=data["query"],
+                collection_ids=data["collection_ids"],
+                top_k=data["top_k"],
+            )
+        except InvalidSearchRequest as exc:
+            return error_response(
+                "invalid_search_request",
+                str(exc),
+                status.HTTP_400_BAD_REQUEST,
+            )
+        except SearchServiceUnavailable as exc:
+            return error_response(
+                "search_service_unavailable",
+                str(exc),
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except SearchServiceFailed as exc:
+            return error_response(
+                "search_service_failed",
+                str(exc),
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        response_data = {
+            **trace,
+            "query": data["query"],
+            "parsed_keys": parsed_info["keys"],
+            "filters": {
+                "collection_ids": parsed_info["effective_collection_ids"]
+            },
+        }
+        response_serializer = KisSearchInspectResponseSerializer(
+            data=response_data
+        )
+        if not response_serializer.is_valid():
+            logger.error(
+                "Invalid KIS inspect result: %s",
+                response_serializer.errors,
+            )
+            return error_response(
+                "invalid_search_output",
+                "Routing trace từ Search Engine không đúng API contract.",
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                {"fields": response_serializer.errors},
+            )
+
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+
 class KisDatasetAssetView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["KIS"],
+        summary="Serve a KIS keyframe or video",
+        responses={(200, "application/octet-stream"): OpenApiTypes.BINARY},
+    )
     def get(self, request, asset_path):
         relative_path = Path(asset_path.replace("\\", "/"))
 

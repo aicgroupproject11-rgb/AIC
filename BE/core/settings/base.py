@@ -99,7 +99,17 @@ if not KIS_DATA_ROOT.is_absolute():
 else:
     KIS_DATA_ROOT = KIS_DATA_ROOT.resolve()
 
+KIS_INDEX_ROOT = Path(os.getenv("KIS_INDEX_ROOT", "search_engine/data/search_index"))
+if not KIS_INDEX_ROOT.is_absolute():
+    KIS_INDEX_ROOT = (BASE_DIR / KIS_INDEX_ROOT).resolve()
+else:
+    KIS_INDEX_ROOT = KIS_INDEX_ROOT.resolve()
+
 KIS_SEARCH_FUNCTION = os.getenv("KIS_SEARCH_FUNCTION", "search_engine.kis.search")
+KIS_INSPECT_FUNCTION = os.getenv(
+    "KIS_INSPECT_FUNCTION",
+    "search_engine.kis.inspect",
+)
 KIS_MAX_VIDEO_SIZE = int(
     os.getenv("KIS_MAX_VIDEO_SIZE", str(2 * 1024 * 1024 * 1024))
 )
@@ -132,5 +142,3 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
-
-
