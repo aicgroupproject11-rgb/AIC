@@ -15,3 +15,6 @@ dist/
 staticfiles/
 media/
 
+
+# Runtime-built KIS search index
+BE/search_engine/data/search_index/
