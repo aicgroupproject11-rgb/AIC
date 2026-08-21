@@ -1,5 +1,27 @@
 # AIC Data Processing
 
+Luồng chuẩn mới dùng các module `download_dataset`, `cli` và `pipeline`. Tài liệu chi tiết về schema từng file và search index nằm tại [docs/SEARCH_PIPELINE.md](../../docs/SEARCH_PIPELINE.md).
+
+```bash
+cd BE
+
+# Chỉ xem danh sách package trong Google Sheet
+python -m data_processing.download_dataset --list
+
+# Tải các gói search thiết yếu và giải nén
+python -m data_processing.download_dataset --extract
+
+# Kiểm tra sâu, tạo manifest.csv và collection.json
+python -m data_processing.cli prepare --data-root data_processing
+
+# Dựng hybrid domain/BoW/R-tree index
+python -m search_engine.cli build-index --data-root data_processing
+```
+
+Các script cũ `scan_aic.py`, `build_manifest.py`, `validate_manifest.py`, `build_collection.py`, `validate_collection.py` được giữ để đối chiếu với nhánh học sinh; không còn là entry point khuyến nghị.
+
+## Cấu trúc bắt buộc
+
 ## Thêm collection mới
 
 ### 1. Thêm keyframes
