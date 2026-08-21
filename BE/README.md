@@ -1,4 +1,6 @@
-# Backend Base
+# AIC Backend
+
+Backend Django phục vụ keyframe/video và gọi hybrid search engine. Xem pipeline dữ liệu và index tại [tài liệu hệ thống](../docs/SEARCH_PIPELINE.md).
 
 ## Cấu trúc
 
@@ -7,14 +9,13 @@ BE/
 ├── apps/                  # Mỗi domain nghiệp vụ là một Django app độc lập
 ├── common/                # Permission, exception, utility và hạ tầng dùng chung
 ├── data_processing/
-│   ├── scan_aic.py
-│   ├── build_manifest.py
-│   ├── validate_manifest.py
-│   ├── build_collection.py
-│   ├── validate_collection.py
+│   ├── cli.py
+│   ├── download_dataset.py
+│   ├── pipeline.py
 │   ├── manifest.csv
 │   ├── collection.json
-│   └── README_DATA_PROCESSING.md       # Xử lí dữ liệu, đọc readme để thao tác thêm
+│   └── README.md
+├── search_engine/        # Domain router, object BoW, PCA/R-tree, exact rerank
 ├── core/
 │   ├── settings/
 │   │   ├── base.py        # Cấu hình chung
@@ -61,6 +62,16 @@ Kiểm tra:
 python manage.py check
 python manage.py test
 ```
+
+Chuẩn bị search index:
+
+```bash
+python -m data_processing.cli prepare --data-root data_processing
+python manage.py build_kis_index
+python -m search_engine.cli search "người đi xe đạp #L21" --top-k 10
+```
+
+Sau khi server chạy, dùng `POST /api/kis/search/inspect/` với cùng payload của search để xem query normalization, domain routing và các R-tree được truy vấn. Chi tiết contract nằm trong Swagger và [tài liệu pipeline](../docs/SEARCH_PIPELINE.md).
 
 ## Thêm module nghiệp vụ
 
